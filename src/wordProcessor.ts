@@ -27,7 +27,6 @@ import type { PageData } from "./pdfParser";
 export interface SentenceRef {
   sentence: string;
   page: number;
-  line: number;
 }
 
 export interface WordEntry {
@@ -47,10 +46,13 @@ export function countWords(pages: PageData[], maxWords: number): CountResult {
   let totalWords = 0;
 
   for (const { page, lines } of pages) {
-    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-      const line = lines[lineIdx];
+    for (const line of lines) {
       const tokens = line.toLowerCase().match(/[a-z]{3,}/g) ?? [];
       const seen = new Set<string>();
+      const cleaned = line.replace(/^\d+\s+/, "").trim();
+      const sentenceParts =
+        cleaned.match(/[^.!?]+[.!?]?/g)?.map((s) => s.trim()).filter(Boolean) ??
+        [];
 
       for (const w of tokens) {
         if (STOP_WORDS.has(w)) continue;
@@ -65,10 +67,12 @@ export function countWords(pages: PageData[], maxWords: number): CountResult {
             arr = [];
             refs.set(w, arr);
           }
-          const cleaned = line.replace(/^\d+\s+/, "");
+          const tokenRegex = new RegExp(`\\b${w}\\b`, "i");
           const sentence =
-            cleaned.length > 120 ? cleaned.slice(0, 117) + "\u2026" : cleaned;
-          arr.push({ sentence, page, line: lineIdx + 1 });
+            sentenceParts.find((part) => tokenRegex.test(part)) || cleaned;
+          if (sentence.length > 0) {
+            arr.push({ sentence, page });
+          }
         }
       }
     }

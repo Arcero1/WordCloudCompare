@@ -49,8 +49,18 @@
       <div id="status" class="hidden"></div>
 
       <div id="workspace" class="hidden">
-        <div class="cloud-container" id="cloud-container-left">
-          <svg class="cloud-svg" id="cloud-svg-left"></svg>
+        <div class="cloud-column" id="cloud-column-left">
+          <div class="cloud-container" id="cloud-container-left">
+            <svg class="cloud-svg" id="cloud-svg-left"></svg>
+          </div>
+          <div class="quote-box-wrap hidden" id="quote-wrap-left">
+            <label class="quote-label" for="quote-box-left">Left Quote</label>
+            <textarea
+              id="quote-box-left"
+              class="quote-box"
+              readonly
+            ></textarea>
+          </div>
         </div>
         <div id="word-panel">
           <div class="panel-header">
@@ -62,8 +72,18 @@
           </div>
           <div id="word-list"></div>
         </div>
-        <div class="cloud-container" id="cloud-container-right">
-          <svg class="cloud-svg" id="cloud-svg-right"></svg>
+        <div class="cloud-column" id="cloud-column-right">
+          <div class="cloud-container" id="cloud-container-right">
+            <svg class="cloud-svg" id="cloud-svg-right"></svg>
+          </div>
+          <div class="quote-box-wrap hidden" id="quote-wrap-right">
+            <label class="quote-label" for="quote-box-right">Right Quote</label>
+            <textarea
+              id="quote-box-right"
+              class="quote-box"
+              readonly
+            ></textarea>
+          </div>
         </div>
       </div>
     </div>

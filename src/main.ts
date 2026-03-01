@@ -2,6 +2,11 @@ import "./style.css";
 import { extractPages, type PageData } from "./pdfParser";
 import { countWords, type WordEntry, type CountResult } from "./wordProcessor";
 import { renderCloud } from "./wordCloud";
+import {
+  loadPdfForSide,
+  removePdfForSide,
+  savePdfForSide,
+} from "./pdfStorage";
 
 const WORD_COLORS = [
   "#6c63ff", "#ff6584", "#43e97b", "#f8d800",
@@ -18,6 +23,10 @@ const workspace = document.getElementById("workspace")!;
 const wordListEl = document.getElementById("word-list")!;
 const selectAllBtn = document.getElementById("select-all-btn")!;
 const selectNoneBtn = document.getElementById("select-none-btn")!;
+const quoteBoxLeft = document.getElementById("quote-box-left") as HTMLTextAreaElement;
+const quoteBoxRight = document.getElementById("quote-box-right") as HTMLTextAreaElement;
+const quoteWrapLeft = document.getElementById("quote-wrap-left") as HTMLElement;
+const quoteWrapRight = document.getElementById("quote-wrap-right") as HTMLElement;
 
 const sides = ["left", "right"] as const;
 type Side = (typeof sides)[number];
@@ -50,6 +59,7 @@ const state: Record<Side, SideState> = {
 };
 
 let hiddenWords = new Set<string>();
+let activeHoverWord: string | null = null;
 
 // Merged word list: one entry per unique word, with counts for both sides
 interface MergedWord {
@@ -60,6 +70,39 @@ interface MergedWord {
   rightEntry: WordEntry | null;
 }
 let mergedWords: MergedWord[] = [];
+
+function formatQuote(entry: WordEntry | null): string {
+  if (!entry?.sample) {
+    return "No matching sentence found.";
+  }
+  return `${entry.sample.sentence}\n(Page ${entry.sample.page})`;
+}
+
+function setQuoteBoxesVisible(visible: boolean) {
+  quoteWrapLeft.classList.toggle("hidden", !visible);
+  quoteWrapRight.classList.toggle("hidden", !visible);
+}
+
+function renderQuoteBoxes(word: string | null) {
+  if (!word) {
+    quoteBoxLeft.value = "";
+    quoteBoxRight.value = "";
+    setQuoteBoxesVisible(false);
+    return;
+  }
+
+  const merged = mergedWords.find((w) => w.text === word);
+  if (!merged) {
+    quoteBoxLeft.value = "";
+    quoteBoxRight.value = "";
+    setQuoteBoxesVisible(false);
+    return;
+  }
+
+  quoteBoxLeft.value = formatQuote(merged.leftEntry);
+  quoteBoxRight.value = formatQuote(merged.rightEntry);
+  setQuoteBoxesVisible(true);
+}
 
 // --- Status helpers ---
 function showStatus(msg: string, isError = false) {
@@ -73,10 +116,20 @@ function hideStatus() {
 }
 
 // --- File handling ---
-async function handleFile(side: Side, file: File) {
+interface HandleFileOptions {
+  persist?: boolean;
+}
+
+async function handleFile(
+  side: Side,
+  file: File,
+  options: HandleFileOptions = {},
+): Promise<boolean> {
+  const { persist = true } = options;
+
   if (file.type !== "application/pdf") {
     showStatus("Please upload a PDF file.", true);
-    return;
+    return false;
   }
 
   showStatus("Extracting text from PDF…");
@@ -94,7 +147,7 @@ async function handleFile(side: Side, file: File) {
 
     if (s.pages.every((p) => p.lines.length === 0)) {
       showStatus("No extractable text found in this PDF.", true);
-      return;
+      return false;
     }
 
     s.uploadArea.classList.add("loaded");
@@ -102,14 +155,40 @@ async function handleFile(side: Side, file: File) {
     const titleSpan = s.uploadArea.querySelector(".upload-title")!;
     loadedDiv.classList.remove("hidden");
     titleSpan.textContent = file.name.replace(/\.pdf$/i, "");
+
+    if (persist) {
+      await savePdfForSide(side, file);
+    }
+
     hideStatus();
     generate(selectedWords);
     controls.classList.remove("hidden");
+    return true;
   } catch (e) {
     showStatus(
       `Failed to read PDF: ${e instanceof Error ? e.message : e}`,
       true,
     );
+    return false;
+  }
+}
+
+async function restoreSavedPdfs() {
+  let restoredAny = false;
+
+  for (const side of sides) {
+    const savedFile = await loadPdfForSide(side);
+    if (!savedFile) continue;
+
+    restoredAny = true;
+    const ok = await handleFile(side, savedFile, { persist: false });
+    if (!ok) {
+      await removePdfForSide(side);
+    }
+  }
+
+  if (restoredAny) {
+    hideStatus();
   }
 }
 
@@ -186,7 +265,10 @@ function renderSideCloud(side: Side, colorMap: Map<string, string>) {
 
   s.container.classList.remove("empty");
   s.svg.style.display = "";
-  renderCloud(s.svg, visible, s.totalWords, colorMap);
+  renderCloud(s.svg, visible, s.totalWords, colorMap, (payload) => {
+    activeHoverWord = payload?.text ?? null;
+    renderQuoteBoxes(activeHoverWord);
+  });
 }
 
 function renderBothClouds() {
@@ -195,6 +277,7 @@ function renderBothClouds() {
     cMap.set(w.text, WORD_COLORS[i % WORD_COLORS.length]);
   });
   for (const side of sides) renderSideCloud(side, cMap);
+  renderQuoteBoxes(activeHoverWord);
 }
 
 // --- Panel ---
@@ -263,7 +346,9 @@ for (const side of sides) {
 
   s.fileInput.addEventListener("change", () => {
     const file = s.fileInput.files?.[0];
-    if (file) handleFile(side, file);
+    if (file) {
+      void handleFile(side, file);
+    }
   });
 
   s.uploadArea.querySelector(".change-pdf")!.addEventListener("click", (e) => {
@@ -282,7 +367,9 @@ for (const side of sides) {
     e.preventDefault();
     s.uploadArea.classList.remove("dragover");
     const file = e.dataTransfer?.files[0];
-    if (file) handleFile(side, file);
+    if (file) {
+      void handleFile(side, file);
+    }
   });
 }
 
@@ -309,3 +396,5 @@ window.addEventListener("resize", () => {
     if (state.left.pages.length || state.right.pages.length) renderBothClouds();
   }, 250);
 });
+
+void restoreSavedPdfs();
