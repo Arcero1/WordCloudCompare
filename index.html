@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Word Cloud</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>PDF Word Cloud</h1>
+        <p class="subtitle">Upload two PDFs to compare word clouds side by side</p>
+      </header>
+
+      <div id="upload-row">
+        <div class="upload-area" data-side="left">
+          <input type="file" id="pdf-input-left" accept=".pdf" />
+          <label for="pdf-input-left" class="upload-label">
+            <span class="upload-icon">📄</span>
+            <span class="upload-text">Left PDF — click or drop</span>
+          </label>
+          <div class="upload-loaded hidden">
+            <span class="upload-title"></span>
+            <a href="#" class="change-pdf">change</a>
+          </div>
+        </div>
+        <div class="upload-area" data-side="right">
+          <input type="file" id="pdf-input-right" accept=".pdf" />
+          <label for="pdf-input-right" class="upload-label">
+            <span class="upload-icon">📄</span>
+            <span class="upload-text">Right PDF — click or drop</span>
+          </label>
+          <div class="upload-loaded hidden">
+            <span class="upload-title"></span>
+            <a href="#" class="change-pdf">change</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="controls" class="hidden">
+        <label>
+          Max words:
+          <input type="number" id="max-words" value="150" min="10" max="500" step="10" />
+        </label>
+        <button id="regenerate-btn">Regenerate</button>
+      </div>
+
+      <div id="status" class="hidden"></div>
+
+      <div id="workspace" class="hidden">
+        <div class="cloud-container" id="cloud-container-left">
+          <svg class="cloud-svg" id="cloud-svg-left"></svg>
+        </div>
+        <div id="word-panel">
+          <div class="panel-header">
+            <span>Words</span>
+            <div class="panel-actions">
+              <button id="select-all-btn" title="Select all">All</button>
+              <button id="select-none-btn" title="Deselect all">None</button>
+            </div>
+          </div>
+          <div id="word-list"></div>
+        </div>
+        <div class="cloud-container" id="cloud-container-right">
+          <svg class="cloud-svg" id="cloud-svg-right"></svg>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

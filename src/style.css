@@ -1,0 +1,378 @@
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --border: #2a2d3a;
+  --text: #e1e4ed;
+  --text-muted: #8b8fa3;
+  --accent: #6c63ff;
+  --accent-hover: #7f78ff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Upload row */
+#upload-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.upload-area {
+  flex: 1;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+
+.upload-area:hover,
+.upload-area.dragover {
+  border-color: var(--accent);
+  background: rgba(108, 99, 255, 0.05);
+}
+
+.upload-area.loaded {
+  border-color: #43e97b;
+  border-style: solid;
+  padding: 1.25rem 1.5rem;
+}
+
+.upload-area.loaded .upload-label {
+  display: none;
+}
+
+.upload-loaded {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.upload-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.change-pdf {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.change-pdf:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.upload-area input[type="file"] {
+  display: none;
+}
+
+.upload-area label {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.upload-icon {
+  font-size: 2rem;
+}
+
+.upload-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Controls */
+#controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+#controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+#max-words {
+  width: 80px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+#regenerate-btn {
+  padding: 0.5rem 1.25rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#regenerate-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* Status */
+#status {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+#status.error {
+  color: #f87171;
+}
+
+/* Workspace layout */
+#workspace {
+  margin-top: 2rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+/* Word panel */
+#word-panel {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  max-height: 540px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.panel-actions button {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.panel-actions button:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+#word-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0.25rem 0;
+}
+
+.word-total {
+  border-bottom: 1px solid var(--border);
+  cursor: default !important;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.word-total:hover {
+  background: transparent !important;
+}
+
+.word-item {
+  display: flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: background 0.12s;
+  user-select: none;
+  gap: 0.35rem;
+}
+
+.word-item:hover {
+  background: rgba(108, 99, 255, 0.08);
+}
+
+.word-item.hidden-word {
+  opacity: 0.35;
+}
+
+.word-item.hidden-word .word-name {
+  text-decoration: line-through;
+}
+
+.word-count {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.word-count.left {
+  color: #43e97b;
+}
+
+.word-count.right {
+  color: #fa709a;
+}
+
+.word-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Cloud containers */
+.cloud-container {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.cloud-container.empty {
+  min-height: 200px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.cloud-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cloud-svg text {
+  cursor: default;
+  transition: opacity 0.15s;
+}
+
+.cloud-svg text:hover {
+  opacity: 0.75;
+}
+
+/* Tooltip */
+#word-tooltip {
+  background: #1e2030;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text);
+  max-width: 360px;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+
+#word-tooltip strong {
+  font-size: 0.9rem;
+}
+
+#word-tooltip .tip-quote {
+  color: var(--text-muted);
+  font-style: italic;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+#word-tooltip .tip-ref {
+  color: var(--accent);
+  font-size: 0.78rem;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.hidden {
+  display: none !important;
+}
