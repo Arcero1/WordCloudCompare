@@ -23,8 +23,8 @@ const workspace = document.getElementById("workspace")!;
 const wordListEl = document.getElementById("word-list")!;
 const selectAllBtn = document.getElementById("select-all-btn")!;
 const selectNoneBtn = document.getElementById("select-none-btn")!;
-const quoteBoxLeft = document.getElementById("quote-box-left") as HTMLTextAreaElement;
-const quoteBoxRight = document.getElementById("quote-box-right") as HTMLTextAreaElement;
+const quoteBoxLeft = document.getElementById("quote-box-left") as HTMLDivElement;
+const quoteBoxRight = document.getElementById("quote-box-right") as HTMLDivElement;
 const quoteWrapLeft = document.getElementById("quote-wrap-left") as HTMLElement;
 const quoteWrapRight = document.getElementById("quote-wrap-right") as HTMLElement;
 
@@ -71,11 +71,22 @@ interface MergedWord {
 }
 let mergedWords: MergedWord[] = [];
 
-function formatQuote(entry: WordEntry | null): string {
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatQuote(word: string, entry: WordEntry | null): string {
   if (!entry?.sample) {
-    return "No matching sentence found.";
+    return "";
   }
-  return `${entry.sample.sentence}\n(Page ${entry.sample.page})`;
+  let html = `<strong>${escapeHtml(word)}</strong> &mdash; ${entry.count} occurrence${entry.count !== 1 ? "s" : ""}`;
+  html += `<br><span class="tip-quote">&ldquo;${escapeHtml(entry.sample.sentence)}&rdquo;</span>`;
+  html += `<br><span class="tip-ref">Page ${entry.sample.page}</span>`;
+  return html;
 }
 
 function setQuoteBoxesVisible(visible: boolean) {
@@ -85,22 +96,22 @@ function setQuoteBoxesVisible(visible: boolean) {
 
 function renderQuoteBoxes(word: string | null) {
   if (!word) {
-    quoteBoxLeft.value = "";
-    quoteBoxRight.value = "";
+    quoteBoxLeft.innerHTML = "";
+    quoteBoxRight.innerHTML = "";
     setQuoteBoxesVisible(false);
     return;
   }
 
   const merged = mergedWords.find((w) => w.text === word);
   if (!merged) {
-    quoteBoxLeft.value = "";
-    quoteBoxRight.value = "";
+    quoteBoxLeft.innerHTML = "";
+    quoteBoxRight.innerHTML = "";
     setQuoteBoxesVisible(false);
     return;
   }
 
-  quoteBoxLeft.value = formatQuote(merged.leftEntry);
-  quoteBoxRight.value = formatQuote(merged.rightEntry);
+  quoteBoxLeft.innerHTML = formatQuote(word, merged.leftEntry);
+  quoteBoxRight.innerHTML = formatQuote(word, merged.rightEntry);
   setQuoteBoxesVisible(true);
 }
 

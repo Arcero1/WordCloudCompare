@@ -352,38 +352,32 @@ header h1 {
   background: #1e2030;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.55rem 0.7rem;
+  padding: 0.6rem 0.85rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
 }
 
-.quote-label {
-  display: block;
-  font-size: 0.74rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--accent);
-  margin-bottom: 0.3rem;
-}
-
 .quote-box {
-  width: 100%;
-  min-height: 112px;
-  max-height: 220px;
-  resize: vertical;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-muted);
-  padding: 0;
   font-size: 0.82rem;
   line-height: 1.45;
-  font-style: italic;
-  font-family: "Georgia", "Times New Roman", serif;
+  color: var(--text);
 }
 
-.quote-box:focus {
-  outline: none;
+.quote-box strong {
+  font-size: 0.9rem;
+}
+
+.quote-box .tip-quote {
+  color: var(--text-muted);
+  font-style: italic;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.quote-box .tip-ref {
+  color: var(--accent);
+  font-size: 0.78rem;
+  display: inline-block;
+  margin-top: 2px;
 }
 
 @media (max-width: 1200px) {
