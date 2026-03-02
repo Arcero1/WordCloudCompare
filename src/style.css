@@ -354,6 +354,13 @@ header h1 {
   border-radius: 8px;
   padding: 0.6rem 0.85rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  min-height: 4.2em;
+  transition: opacity 0.15s, visibility 0.15s;
+}
+
+.quote-box-wrap.quote-hidden {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .quote-box {

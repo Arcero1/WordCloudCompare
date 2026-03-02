@@ -58,7 +58,21 @@ const state: Record<Side, SideState> = {
   right: initSide("right"),
 };
 
-let hiddenWords = new Set<string>();
+const HIDDEN_WORDS_KEY = "wordcloud-hidden-words";
+
+function loadHiddenWords(): Set<string> {
+  try {
+    const raw = localStorage.getItem(HIDDEN_WORDS_KEY);
+    if (raw) return new Set(JSON.parse(raw) as string[]);
+  } catch { /* ignore corrupt data */ }
+  return new Set<string>();
+}
+
+function saveHiddenWords() {
+  localStorage.setItem(HIDDEN_WORDS_KEY, JSON.stringify([...hiddenWords]));
+}
+
+let hiddenWords = loadHiddenWords();
 let activeHoverWord: string | null = null;
 
 // Merged word list: one entry per unique word, with counts for both sides
@@ -90,8 +104,8 @@ function formatQuote(word: string, entry: WordEntry | null): string {
 }
 
 function setQuoteBoxesVisible(visible: boolean) {
-  quoteWrapLeft.classList.toggle("hidden", !visible);
-  quoteWrapRight.classList.toggle("hidden", !visible);
+  quoteWrapLeft.classList.toggle("quote-hidden", !visible);
+  quoteWrapRight.classList.toggle("quote-hidden", !visible);
 }
 
 function renderQuoteBoxes(word: string | null) {
@@ -232,6 +246,7 @@ function generate(preserveSelected?: Set<string>) {
     }
     // Clear hidden set; only words that were hidden before and still aren't selected stay hidden
     hiddenWords.clear();
+    saveHiddenWords();
   }
 
   mergedWords = [...allTexts].map((text) => {
@@ -347,6 +362,7 @@ function toggleWord(word: string) {
   } else {
     hiddenWords.add(word);
   }
+  saveHiddenWords();
   renderPanel();
   renderBothClouds();
 }
@@ -390,11 +406,13 @@ regenerateBtn.addEventListener("click", () => generate());
 // Select all / none
 selectAllBtn.addEventListener("click", () => {
   hiddenWords.clear();
+  saveHiddenWords();
   renderPanel();
   renderBothClouds();
 });
 selectNoneBtn.addEventListener("click", () => {
   hiddenWords = new Set(mergedWords.map((w) => w.text));
+  saveHiddenWords();
   renderPanel();
   renderBothClouds();
 });
